@@ -30,7 +30,7 @@ sequenceDiagram
   participant G as Gemini embeddings
   participant P as Pinecone
   C->>A: Upload document (bearer token)
-  A->>A: Validate type and size; extract and chunk
+  A->>A: Validate type and size, then extract and chunk
   A->>D: Persist canonical chunks and queued job
   A->>Q: Enqueue stable job ID
   W->>D: Read canonical chunks
