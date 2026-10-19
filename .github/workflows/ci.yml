@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: incidentiq
+          POSTGRES_PASSWORD: incidentiq
+          POSTGRES_DB: incidentiq
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U incidentiq -d incidentiq"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://incidentiq:incidentiq@localhost:5432/incidentiq
+      DIRECT_DATABASE_URL: postgresql+psycopg://incidentiq:incidentiq@localhost:5432/incidentiq
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42a7d5cba805825da76410c181273ba90b1 # v6.0.0
+
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.13.1"
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install project and development dependencies
+        run: uv sync --dev
+
+      - name: Lint
+        run: uv run ruff check src tests
+
+      - name: Type check security and database boundaries
+        run: uv run mypy src/incidentiq/security.py src/incidentiq/db/session.py --ignore-missing-imports
+
+      - name: Check Python syntax
+        run: uv run python -m compileall -q src tests
+
+      - name: Apply migrations to PostgreSQL
+        run: uv run alembic upgrade head
+
+      - name: Run evaluation regression tests
+        run: uv run pytest tests/test_evaluation.py tests/test_retrieval_ranking.py -q
+
+      - name: Run full test suite
+        run: uv run pytest -q
+
+      - name: Build production image
+        run: docker build --tag incidentiq:ci .
