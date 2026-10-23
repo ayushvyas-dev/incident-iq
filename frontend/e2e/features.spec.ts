@@ -124,12 +124,12 @@ async function installApiMocks(page: Page) {
   return requests;
 }
 
-test('overview loads operational summaries and navigation', async ({ page }) => {
+test('overview shows readiness, recent investigations, and navigation', async ({ page }) => {
   await installApiMocks(page);
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Overview' })).toBeVisible();
-  await expect(page.getByText('API overall')).toBeVisible();
-  await expect(page.getByText('Requests · 24h')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'System readiness' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Recent investigations' })).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Knowledge base' })).toBeVisible();
 });
 
@@ -226,7 +226,7 @@ test('operations changes metric windows and simulates routing without generation
   const simulationResponse = page.waitForResponse(response => response.url().includes('/api/backend/api/v1/routing/simulate') && response.request().method() === 'POST');
   await page.getByRole('button', { name: 'Simulate routing' }).click();
   expect((await simulationResponse).status()).toBe(200);
-  await expect(page.getByText('test-model')).toBeVisible();
+  await expect(page.getByText('test-model').first()).toBeVisible();
   expect(requests.some(item => item.method === 'GET' && item.path === 'api/v1/metrics/summary?window=1h')).toBe(true);
   expect(requests.some(item => item.method === 'POST' && item.path === 'api/v1/routing/simulate')).toBe(true);
   expect(requests.find(item => item.method === 'POST' && item.path === 'api/v1/routing/simulate')?.body).toMatchObject({ task_type: 'incident_analysis', policy: 'static', permitted_providers: ['groq', 'gemini'] });

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowUpRight, CircleAlert, LoaderCircle } from "lucide-react";
 
-export function Heading({ eyebrow, title, description, action }: { eyebrow?: string; title: string; description?: string; action?: React.ReactNode }) {
-  return <div className="mb-7 flex flex-wrap items-end justify-between gap-4"><div>{eyebrow && <div className="mb-2 text-[10px] font-semibold uppercase tracking-[.14em] text-[var(--muted)]">{eyebrow}</div>}<h1 className="text-[25px] font-semibold tracking-[-.04em] md:text-[29px]">{title}</h1>{description && <p className="mt-1.5 max-w-2xl text-[13px] leading-6 text-[var(--muted)]">{description}</p>}</div>{action}</div>;
+export function Heading({ title, description, action }: { eyebrow?: string; title: string; description?: string; action?: React.ReactNode }) {
+  return <div className="mb-6 flex flex-wrap items-center justify-between gap-4"><div><h1 className="text-[24px] font-semibold tracking-[-.03em]">{title}</h1>{description && <p className="mt-1 max-w-2xl text-[13px] leading-5 text-[var(--muted)]">{description}</p>}</div>{action}</div>;
 }
 export function Panel({ title, detail, action, children, className = "" }: { title?: React.ReactNode; detail?: string; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return <section className={`surface ${className}`}>{(title || action) && <div className="flex items-center justify-between gap-3 border-b border-[var(--line)] px-4 py-3.5 md:px-5"><div>{title && <h2 className="text-[13px] font-semibold">{title}</h2>}{detail && <p className="mt-1 text-[11px] text-[var(--muted)]">{detail}</p>}</div>{action}</div>}<div className="p-4 md:p-5">{children}</div></section>;
